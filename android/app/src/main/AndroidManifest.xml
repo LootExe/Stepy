@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.stepy">
+    package="com.lootexe.stepy">
    <application
         android:label="stepy"
         android:name="${applicationName}"

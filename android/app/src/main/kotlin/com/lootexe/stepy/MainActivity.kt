@@ -1,4 +1,4 @@
-package com.example.stepy
+package com.lootexe.stepy
 
 import io.flutter.embedding.android.FlutterActivity
 
