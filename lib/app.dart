@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'src/bloc/settings_bloc.dart';
 import 'src/repository/settings_repository.dart';
 import 'src/screen/home_screen.dart';
+import 'src/theme_manager.dart';
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
@@ -43,10 +44,10 @@ class App extends StatelessWidget {
             ],
             child: BlocBuilder<SettingsBloc, SettingsState>(
               builder: (context, state) => MaterialApp(
-                /* theme: ThemeManager.lightTheme,
+                theme: ThemeManager.lightTheme,
                 darkTheme: ThemeManager.darkTheme,
-                themeMode: state.settings.themeMode, */
-                home: const HomeScreen(),
+                themeMode: ThemeMode.dark,
+                home: HomeScreen(),
               ),
             ),
           );
