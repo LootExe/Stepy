@@ -22,9 +22,9 @@ class ThemeManager {
     final theme = FlexColorScheme.dark(
       colorScheme: const ColorScheme.dark(
         primary: Colors.white,
-        background: Color(0xff1b1b1b),
+        background: Color(0xFF1B1B1B),
       ),
-      fontFamily: GoogleFonts.roboto().fontFamily,
+      fontFamily: GoogleFonts.rubik(fontWeight: FontWeight.w500).fontFamily,
       useMaterial3: true,
     ).toTheme;
 

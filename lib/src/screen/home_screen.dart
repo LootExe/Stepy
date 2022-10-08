@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:curved_progress_bar/curved_progress_bar.dart';
 
 import 'settings_screen.dart';
+import 'widget/steps_indicator.dart';
 import 'widget/square_button.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -50,7 +50,7 @@ class HomeScreen extends StatelessWidget {
                           style: TextStyle(color: Colors.grey),
                         ),
                         Text(
-                          'Daily Activity',
+                          'Daily Activity - Today',
                           style: Theme.of(context).textTheme.headline6,
                         ),
                       ],
@@ -59,88 +59,56 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                color: Colors.red,
-                width: double.infinity,
-                margin: const EdgeInsets.all(50.0),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '10,250',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 48.0,
-                            ),
-                          ),
-                          Text('Steps'),
-                        ],
-                      ),
-                    ),
-                    Align(
-                      alignment: FractionalOffset.bottomCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 30.0),
-                        child: Text('Goal: 10,000'),
-                      ),
-                    ),
-                    CurvedCircularProgressIndicator(
-                      value: 0.5,
-                      strokeWidth: 16,
-                      animationDuration: const Duration(seconds: 1),
-                      backgroundColor: Color(0xFF393939),
-                      color: Colors.white,
-                    ),
-                  ],
+            Spacer(),
+            StepsIndicator(currentSteps: 7500, stepsGoal: 10000),
+            Spacer(),
+            Container(
+              margin: EdgeInsets.only(bottom: 100.0),
+              height: 100.0,
+              decoration: BoxDecoration(
+                color: Theme.of(context).backgroundColor,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(16),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black,
+                    blurRadius: 3.0, // soften the shadow
+                    spreadRadius: 1.5, //extend the shadow
+                    offset: Offset(
+                      3.0, // Move to right 5  horizontally
+                      3.0, // Move to bottom 5 Vertically
+                    ),
+                  ),
+                  BoxShadow(
+                    color: Colors.white12,
+                    blurRadius: 3.0, // soften the shadow
+                    spreadRadius: 0.5, //extend the shadow
+                    offset: Offset(
+                      -3.0, // Move to right 5  horizontally
+                      -3.0, // Move to bottom 5 Vertically
+                    ),
+                  )
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [Text('Distance'), Text('5.6 km')],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [Text('Calories'), Text('1589 kcal')],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [Text('Average'), Text('8762 Steps')],
+                  ),
+                ],
               ),
             ),
-            /* Expanded(
-              child: Container(
-                color: Colors.red,
-                margin: const EdgeInsets.symmetric(
-                    vertical: 30.0, horizontal: 50.0),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '10250',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 48.0,
-                            ),
-                          ),
-                          Text('Steps'),
-                          Spacer(
-                            flex: 1,
-                          ),
-                          Text('Goal: 10,000'),
-                        ],
-                      ),
-                    ),
-                    FittedBox(
-                      child: CurvedCircularProgressIndicator(
-                        value: 0.5,
-                        strokeWidth: 3,
-                        animationDuration: const Duration(seconds: 1),
-                        backgroundColor: Color(0xFF393939),
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ), */
           ],
         ),
       ),

@@ -9,7 +9,8 @@ import 'app.dart';
 import 'src/repository/settings_repository.dart';
 
 void main() {
-  GoogleFonts.config.allowRuntimeFetching = false;
+  // TODO: Activate later
+  //GoogleFonts.config.allowRuntimeFetching = false;
 
   LicenseRegistry.addLicense(() async* {
     final license =
