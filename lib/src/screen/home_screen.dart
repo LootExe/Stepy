@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'settings_screen.dart';
+import 'widget/date_bar.dart';
 import 'widget/footer_bar.dart';
 import 'widget/header_bar.dart';
+import 'widget/menu_drawer.dart';
 import 'widget/steps_indicator.dart';
-import 'widget/square_button.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -15,24 +15,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      // TODO: Make Drawer beautieful
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            ListTile(
-              title: const Text('Settings'),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SettingsScreen(),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      drawer: MenuDrawer(),
       body: Container(
-        margin: const EdgeInsets.only(top: 48.0, left: 16.0, right: 16.0),
+        margin: const EdgeInsets.symmetric(
+          vertical: 64.0,
+          horizontal: 16.0,
+        ),
         child: Column(
           children: [
             HeaderBar(
@@ -40,6 +28,8 @@ class HomeScreen extends StatelessWidget {
               date: DateTime.now(),
               dateRange: 'Daily Activity',
             ),
+            Spacer(flex: 2),
+            DateBar(),
             Spacer(),
             StepsIndicator(
               currentSteps: 7500,
