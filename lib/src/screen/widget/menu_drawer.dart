@@ -6,14 +6,20 @@ class MenuDrawer extends StatelessWidget {
   const MenuDrawer({super.key});
 
   Widget _createHeader(BuildContext context) {
-    return const DrawerHeader(
-      padding: EdgeInsets.all(16.0),
-      child: Text(
-        'Stepy',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 48.0,
-          fontWeight: FontWeight.bold,
+    return const SizedBox(
+      height: 100.0,
+      child: DrawerHeader(
+        padding: EdgeInsets.all(16.0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Stepy',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 32.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );
@@ -39,7 +45,6 @@ class MenuDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: [
-          // TODO: Make the header more beatiful (Gradient colors?)
           _createHeader(context),
           _createDrawerItem(
             icon: Icons.home,
