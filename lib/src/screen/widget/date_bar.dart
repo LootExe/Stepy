@@ -25,7 +25,7 @@ class DateBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _buildDateField(DateTime.now().subtract(const Duration(days: 4))),
         _buildDateField(DateTime.now().subtract(const Duration(days: 3))),
