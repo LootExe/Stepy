@@ -20,7 +20,7 @@ class ElevatedContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).backgroundColor,
         borderRadius: const BorderRadius.all(
-          Radius.circular(16),
+          Radius.circular(8),
         ),
         boxShadow: const [
           BoxShadow(
