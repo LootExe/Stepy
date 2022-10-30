@@ -14,6 +14,12 @@ class App extends StatelessWidget {
     await Future.wait([
       RepositoryProvider.of<SettingsRepository>(context).readSettings(),
       //RepositoryProvider.of<NotesRepository>(context).readNotes(),
+      SystemChrome.setPreferredOrientations(
+        [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ],
+      ),
     ]);
 
     return true;
@@ -21,11 +27,6 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-
     return FutureBuilder(
       future: _loadData(context),
       builder: (context, snapshot) {
