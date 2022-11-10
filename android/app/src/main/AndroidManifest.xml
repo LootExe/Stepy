@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <application
-        android:label="stepy"
+        android:label="Stepy"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
