@@ -42,11 +42,12 @@ dependencies:
   curved_progress_bar: ^1.0.2
   intl: ^0.17.0
   android_alarm_manager_plus: ^2.1.0
-  pedometer: 
+  pedometer:
     git:
       url: https://github.com/LootExe/Pedometer.git
   foreground: 
     path: D:/_Daten/Flutter/foreground/
+  permission_handler: ^10.2.0
         
 dev_dependencies:
   flutter_test:
