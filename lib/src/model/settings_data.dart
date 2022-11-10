@@ -9,9 +9,10 @@ class SettingsData {
   SettingsData();
 
   ThemeMode themeMode = ThemeMode.system;
+  bool isFirstStart = true;
 
   bool get isEmpty {
-    return themeMode == ThemeMode.system;
+    return themeMode == ThemeMode.system && isFirstStart == true;
   }
 
   factory SettingsData.fromJson(Map<String, dynamic> json) =>
