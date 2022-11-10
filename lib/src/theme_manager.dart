@@ -6,7 +6,7 @@ class ThemeManager {
   static ThemeData get lightTheme {
     final theme = FlexColorScheme.light(
       scheme: FlexScheme.blue,
-      fontFamily: GoogleFonts.roboto().fontFamily,
+      fontFamily: GoogleFonts.rubik(fontWeight: FontWeight.w500).fontFamily,
       useMaterial3: true,
     ).toTheme;
 
