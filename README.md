@@ -1,16 +1,17 @@
-# stepy
+# Stepy
 
-A new Flutter project.
+A step counter app written in Flutter
 
-## Getting Started
+## How it works
 
-This project is a starting point for a Flutter application.
+The app uses three main Android components.
 
-A few resources to get you started if this is your first Flutter project:
+First is the hardware based step sensor to get the number of steps taken
+since device boot.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Second is the Alarm Manager which roughly wakes up every 15 minutes
+the sensor reading function to get new steps in background and saves 
+data to the database.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Third is an Android foreground service which is necessary for the Alarm Manager
+to access the step sensor while running in background
