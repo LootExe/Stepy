@@ -23,3 +23,9 @@ extension CapExtension on String {
     return (length > 1) ? this[0].toUpperCase() + substring(1) : toUpperCase();
   }
 }
+
+extension NumExtension on num {
+  num remap(num fromLow, num fromHigh, num toLow, num toHigh) {
+    return (this - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+  }
+}
