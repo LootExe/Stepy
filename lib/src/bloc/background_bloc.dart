@@ -1,32 +1,38 @@
-import 'dart:isolate';
-import 'dart:ui';
-
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:bloc/bloc.dart';
 import 'package:foreground/foreground.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-import '../debug_utils.dart';
+import '../extensions.dart';
+
+import '../model/log_data.dart';
+import '../model/step_data.dart';
+
+import '../provider/hive_database.dart';
+import '../provider/pedometer_sensor.dart';
+import '../provider/preferences_storage.dart';
+
+import '../repository/history_repository.dart';
+import '../repository/logger_repository.dart';
 import '../repository/pedometer_repository.dart';
 
 part 'background_state.dart';
 part 'background_event.dart';
 
 class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
-  BackgroundBloc() : super(BackgroundInitial()) {
+  BackgroundBloc({required bool isRunning})
+      : super(BackgroundInitial(isRunning)) {
     on<BackgroundServiceStarted>(_onServiceStarted);
     on<BackgroundServiceStopped>(_onServiceStopped);
-
-    IsolateNameServer.registerPortWithName(
-        ReceivePort().sendPort, _alarmIsolate);
   }
 
   static const _alarmId = 19871010;
-  static const _alarmIsolate = 'alarmCallbackIsolate';
+  static const _alarmTime = Duration(minutes: 15);
 
   Future<void> _onServiceStarted(
       BackgroundEvent event, Emitter<BackgroundState> emit) async {
     await AndroidAlarmManager.periodic(
-      const Duration(minutes: 15),
+      _alarmTime,
       _alarmId,
       _onAlarm,
       wakeup: true,
@@ -51,7 +57,7 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
       ),
     );
 
-    emit(BackgroundStartSuccess());
+    emit(const BackgroundStartSuccess(true));
   }
 
   Future<void> _onServiceStopped(
@@ -62,37 +68,101 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
     // Stop Foreground Service
     await Foreground.stopService();
 
-    emit(BackgroundStopSuccess());
+    emit(const BackgroundStopSuccess(false));
   }
+
+  /// Initialize the Alarm Manager
+  static Future<bool> initializeAlarmManager() async {
+    return await AndroidAlarmManager.initialize();
+  }
+
+  /// Check if the Foreground service is running
+  static Future<bool> get isServiceRunning async => await Foreground.isRunning;
 
   /// Alarm Manager Callback function
   @pragma('vm:entry-point')
   static Future<void> _onAlarm() async {
-    // No need to run this method if app is currently active
-    if (IsolateNameServer.lookupPortByName(_alarmIsolate) != null) {
-      printDebug('onAlarm(): App is active.');
-      return;
-    }
+    // Initialize Hive
+    await _initializeHive();
+
+    final logger = LoggerRepository(
+      database: HiveDatabase(
+        boxName: LogData.boxName,
+      ),
+    );
+
+    await logger.initialize();
 
     // Can't use sensor if foreground service is not running
     if (await Foreground.isRunning == false) {
-      printDebug('onAlarm(): Foreground service not running.');
+      logger.add(LogData()
+        ..message = 'onAlarm() : Foreground not running'
+        ..timestamp = DateTime.now());
       return;
     }
 
-    // Create new repository instance
-    final repository = PedometerRepository();
+    // Prevent callback from being called multiple times in short periods
+    if (await _isEnoughTimeElapsed() == false) {
+      logger.add(LogData()
+        ..message = 'onAlarm() : Called twice'
+        ..timestamp = DateTime.now());
+      return;
+    }
 
-    // Get latest pedometer readings
-    await repository.readData();
-    final newSteps = await repository.newSteps;
-    final timestamp = DateTime.now();
+    final pedometer = PedometerRepository(
+      storage: PreferencesStorage(),
+      sensor: PedometerSensor(),
+    );
+    final history = HistoryRepository(
+      database: HiveDatabase(
+        boxName: StepData.boxName,
+      ),
+    );
 
-    // Save newest readings
-    await repository.writeData();
+    await pedometer.initialize();
+    await history.initialize();
+    final result = await pedometer.fetch();
 
-    // TODO: Add steps to hourly database
-    /// Pseudo Code
-    /// database.add(DateTime.now().hour, stepsHourly);
+    // Update history repository
+    final lastEntry = history.dailyHistory.last;
+
+    if (lastEntry.timestamp.isToday) {
+      lastEntry.steps = pedometer.stepsCurrentDay;
+      await lastEntry.save();
+    } else {
+      await history.add(StepData()
+        ..steps = pedometer.stepsCurrentDay
+        ..timestamp = DateTime.now());
+    }
+
+    logger.add(LogData()
+      ..message = 'Fetch = $result / Steps = ${history.dailyHistory.last.steps}'
+      ..timestamp = DateTime.now());
+
+    await history.close();
+    await logger.close();
+  }
+
+  static Future<bool> _isEnoughTimeElapsed() async {
+    const key = 'onAlarm';
+    final storage = PreferencesStorage<DateTime>();
+    final lastCall = await storage.read(key);
+
+    await storage.write(key, DateTime.now());
+
+    return lastCall == null ||
+        lastCall.difference(DateTime.now()).inSeconds > 10;
+  }
+
+  static Future<void> _initializeHive() async {
+    await Hive.initFlutter();
+
+    if (!Hive.isAdapterRegistered(StepDataAdapter().typeId)) {
+      Hive.registerAdapter(StepDataAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(LogDataAdapter().typeId)) {
+      Hive.registerAdapter(LogDataAdapter());
+    }
   }
 }
