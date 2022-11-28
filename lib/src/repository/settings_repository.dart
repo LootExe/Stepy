@@ -1,32 +1,27 @@
-import 'dart:convert';
-
 import '../model/settings_data.dart';
 import '../provider/storage_provider.dart';
 
 class SettingsRepository {
+  SettingsRepository({
+    required StorageProvider<SettingsData> storage,
+  }) : _storage = storage;
+
   static const String _storageKey = 'settings';
 
+  final StorageProvider<SettingsData> _storage;
   var settings = SettingsData();
 
   Future<bool> readSettings() async {
-    final string = await StorageProvider.readEntry(_storageKey);
+    final result = await _storage.read(_storageKey);
 
-    if (string.isEmpty) {
+    if (result == null) {
       return false;
     }
 
-    try {
-      final data = jsonDecode(string) as Map<String, dynamic>;
-      settings = SettingsData.fromJson(data);
-    } catch (e) {
-      return false;
-    }
-
+    settings = result;
     return true;
   }
 
-  Future<bool> writeSettings() async {
-    final json = jsonEncode(settings);
-    return await StorageProvider.writeEntry(_storageKey, json);
-  }
+  Future<bool> writeSettings() async =>
+      await _storage.write(_storageKey, settings);
 }
