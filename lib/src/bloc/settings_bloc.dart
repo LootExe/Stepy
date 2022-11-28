@@ -7,7 +7,7 @@ part 'settings_state.dart';
 part 'settings_event.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  SettingsBloc({required SettingsRepository repository})
+  SettingsBloc(SettingsRepository repository)
       : _repository = repository,
         super(SettingsInitial(repository.settings)) {
     on<SettingsLoaded>(_onLoaded);
