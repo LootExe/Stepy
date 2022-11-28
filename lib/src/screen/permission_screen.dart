@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../bloc/settings_bloc.dart';
+import '../bloc/background_bloc.dart';
+import '../bloc/pedometer_bloc.dart';
+
 import 'home_screen.dart';
 
 class PermissionScreen extends StatefulWidget {
@@ -30,15 +32,13 @@ class _PermissionScreenState extends State<PermissionScreen> {
   bool _canStart = false;
 
   Future<void> _requestPermissions() async {
-    if (await Permission.activityRecognition.request().isGranted) {
+    if (await PedometerBloc.requestPermission()) {
       setState(() => _canStart = true);
     }
   }
 
   void _moveToHome(BuildContext context) {
-    final bloc = BlocProvider.of<SettingsBloc>(context);
-    bloc.settings.isFirstStart = false;
-    bloc.add(SettingsChanged());
+    BlocProvider.of<BackgroundBloc>(context).add(BackgroundServiceStarted());
 
     Navigator.pushReplacement(
       context,
