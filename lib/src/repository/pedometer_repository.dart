@@ -1,97 +1,85 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:pedometer/pedometer.dart';
 
 import '../extensions.dart';
 import '../model/pedometer_data.dart';
+
+import '../provider/sensor_provider.dart';
 import '../provider/storage_provider.dart';
 
-/// Keeps track of current pedometer data
 class PedometerRepository {
+  PedometerRepository({
+    required StorageProvider<PedometerData> storage,
+    required SensorProvider sensor,
+  })  : _storage = storage,
+        _sensor = sensor;
+
   static const String _storageKey = 'pedometer';
+  static const int sensorError = -1;
 
-  var data = PedometerData();
-  StreamSubscription<int>? _pedometer;
+  final StorageProvider<PedometerData> _storage;
+  final SensorProvider _sensor;
+  var _data = PedometerData();
+  bool _isInitialized = false;
 
-  /// Read [PedometerData] from the data provider
-  Future<bool> readData() async {
-    final jsonString = await StorageProvider.readEntry(_storageKey);
+  /// Returns the steps taken the current day
+  int get stepsCurrentDay => _isInitialized ? _data.stepsDaily : sensorError;
 
-    if (jsonString.isEmpty) {
-      return false;
+  /// Returns a stream that contains the current days step count
+  Stream<int> get stepCountStream => _getStepCountStream();
+
+  /// Initialize the repository
+  Future<bool> initialize() async {
+    final result = await _storage.read(_storageKey);
+
+    if (result != null) {
+      _data = result;
     }
 
-    try {
-      final jsonObject = jsonDecode(jsonString) as Map<String, dynamic>;
-      data = PedometerData.fromJson(jsonObject);
-    } catch (e) {
-      return false;
+    return _isInitialized = true;
+  }
+
+  /// Reads new data from the step sensor and updates step count values
+  Future<int> fetch() async => await _getStepCountStream()
+      .first
+      .onError((error, stackTrace) => sensorError);
+
+  Stream<int> _getStepCountStream() {
+    if (!_isInitialized) {
+      return Stream<int>.error('Repository not initialized');
     }
 
-    return true;
+    return _sensor
+        .getStepCountStream(
+      configuration: const SensorConfiguration(
+        samplingRate: SamplingRate.ui,
+      ),
+    )
+        .asyncMap((sensorReading) async {
+      _updatePedometerData(sensorReading);
+      await _storage.write(_storageKey, _data);
+      return _data.stepsDaily;
+    });
   }
 
-  /// Saves [PedometerData] to the data provider
-  Future<bool> writeData() async {
-    final json = jsonEncode(data);
-    return await StorageProvider.writeEntry(_storageKey, json);
-  }
+  void _updatePedometerData(int sensorReading) {
+    int newSteps = 0;
 
-  /// Listen to the pedometer sensor data stream
-  Future<void> listen({
-    required void Function(int steps) onData,
-    required void Function(String errror) onError,
-  }) async {
-    await cancel();
-
-    const config = SensorConfiguration(samplingRate: SamplingRate.ui);
-
-    _pedometer = Pedometer.getStepCountStream(configuration: config).listen(
-      (event) => onData(_processRawSteps(event)),
-      onError: (error) => onError(error.toString()),
-      cancelOnError: true,
-    );
-  }
-
-  /// Cancels the pedometer stream
-  Future<void> cancel() async {
-    await _pedometer?.cancel();
-  }
-
-  /// Returns the steps taken since the last sensor reading
-  Future<int> get newSteps async {
-    final sensorReading = await Pedometer.getStepCountStream()
-        .first
-        .onError((error, stackTrace) => data.lastSensorReading);
-
-    return _processRawSteps(sensorReading);
-  }
-
-  int _processRawSteps(int rawSteps) {
-    if (rawSteps == data.lastSensorReading) {
-      return rawSteps;
-    }
-
-    int steps = 0;
-
-    if (rawSteps < data.lastSensorReading) {
+    if (sensorReading < _data.lastSensorReading) {
       // Device might have been rebooted
-      steps = rawSteps;
-    } else if (data.lastSensorReading > 0) {
-      steps = rawSteps - data.lastSensorReading;
+      newSteps = sensorReading;
+    } else if (_data.lastSensorReading > 0) {
+      newSteps = sensorReading - _data.lastSensorReading;
     }
 
-    if (data.lastSensorTimestamp.isPastDay) {
-      // Start new counting
-      data.stepsToday = steps;
+    if (_data.lastSensorTimestamp.isToday) {
+      // Sum up current day
+      _data.stepsDaily += newSteps;
     } else {
-      data.stepsToday += steps;
+      // New day, reset to zero
+      _data.stepsDaily = 0;
     }
 
-    data.lastSensorReading = rawSteps;
-    data.lastSensorTimestamp = DateTime.now();
-
-    return steps;
+    _data.lastSensorReading = sensorReading;
+    _data.lastSensorTimestamp = DateTime.now();
   }
 }
