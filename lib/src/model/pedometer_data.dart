@@ -7,7 +7,7 @@ class PedometerData {
   PedometerData();
 
   /// Total steps counted for the current day in local time
-  int stepsToday = 0;
+  int stepsDaily = 0;
 
   /// Last step value from the sensor
   int lastSensorReading = 0;
@@ -18,4 +18,10 @@ class PedometerData {
   factory PedometerData.fromJson(Map<String, dynamic> json) =>
       _$PedometerDataFromJson(json);
   Map<String, dynamic> toJson() => _$PedometerDataToJson(this);
+
+  bool compareTo(PedometerData other) {
+    return stepsDaily == other.stepsDaily &&
+        lastSensorReading == other.lastSensorReading &&
+        lastSensorTimestamp == other.lastSensorTimestamp;
+  }
 }

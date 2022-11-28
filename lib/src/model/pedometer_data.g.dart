@@ -8,14 +8,14 @@ part of 'pedometer_data.dart';
 
 PedometerData _$PedometerDataFromJson(Map<String, dynamic> json) =>
     PedometerData()
-      ..stepsToday = json['stepsToday'] as int
+      ..stepsDaily = json['stepsDaily'] as int
       ..lastSensorReading = json['lastSensorReading'] as int
       ..lastSensorTimestamp =
           DateTime.parse(json['lastSensorTimestamp'] as String);
 
 Map<String, dynamic> _$PedometerDataToJson(PedometerData instance) =>
     <String, dynamic>{
-      'stepsToday': instance.stepsToday,
+      'stepsDaily': instance.stepsDaily,
       'lastSensorReading': instance.lastSensorReading,
       'lastSensorTimestamp': instance.lastSensorTimestamp.toIso8601String(),
     };
