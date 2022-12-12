@@ -2,6 +2,7 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:bloc/bloc.dart';
 import 'package:foreground/foreground.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pedometer/pedometer.dart';
 
 import '../extensions.dart';
 
@@ -54,6 +55,8 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
           text: 'Steps are being counted ...',
           visibility: NotificationVisibility.secret,
         ),
+        runOnBoot: true,
+        callback: _foregroundCallback,
       ),
     );
 
@@ -121,6 +124,8 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
 
     await pedometer.initialize();
     await history.initialize();
+
+    await pedometer.registerSensor();
     final result = await pedometer.fetch();
 
     // Update history repository
@@ -139,6 +144,7 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
       ..message = 'Fetch = $result / Steps = ${history.dailyHistory.last.steps}'
       ..timestamp = DateTime.now());
 
+    await pedometer.unregisterSensor();
     await history.close();
     await logger.close();
   }
@@ -165,4 +171,23 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
       Hive.registerAdapter(LogDataAdapter());
     }
   }
+}
+
+@pragma('vm:entry-point')
+void _foregroundCallback() {
+  Foreground.setTaskHandler(
+    onStarted: () async {
+      await Pedometer.registerSensor(
+        configuration: const SensorConfiguration(
+          samplingRate: SamplingRate.ui,
+          batchingInterval: Duration(
+            minutes: 5,
+          ),
+        ),
+      );
+    },
+    onStopped: () async {
+      await Pedometer.unregisterSensor();
+    },
+  );
 }
