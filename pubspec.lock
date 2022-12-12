@@ -423,7 +423,7 @@ packages:
       name: mime
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   nested:
     dependency: transitive
     description:
@@ -445,27 +445,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
-  package_info_plus:
-    dependency: "direct main"
-    description:
-      name: package_info_plus
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.2"
-  package_info_plus_platform_interface:
-    dependency: transitive
-    description:
-      name: package_info_plus_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.1"
   path:
     dependency: "direct dev"
     description:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.2"
+    version: "1.8.3"
   path_provider:
     dependency: transitive
     description:
@@ -518,11 +504,9 @@ packages:
   pedometer:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "44a7a1a5877288f318b0dab40944226ee555268b"
-      url: "https://github.com/LootExe/Pedometer.git"
-    source: git
+      path: "D:/_Daten/Flutter/pedometer/"
+      relative: false
+    source: path
     version: "1.0.0"
   permission_handler:
     dependency: "direct main"
@@ -787,21 +771,21 @@ packages:
       name: test
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.22.0"
+    version: "1.22.1"
   test_api:
     dependency: transitive
     description:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.16"
+    version: "0.4.17"
   test_core:
     dependency: transitive
     description:
       name: test_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.20"
+    version: "0.4.21"
   timing:
     dependency: transitive
     description:
