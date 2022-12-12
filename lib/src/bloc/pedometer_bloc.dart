@@ -37,6 +37,7 @@ class PedometerBloc extends Bloc<PedometerEvent, PedometerState> {
   Future<void> _onStarted(
       PedometerEvent event, Emitter<PedometerState> emit) async {
     _stream?.cancel();
+    await _pedometer.registerSensor();
 
     // Add one entry on first app start
     if (_history.dailyHistory.isEmpty) {
@@ -67,6 +68,7 @@ class PedometerBloc extends Bloc<PedometerEvent, PedometerState> {
   Future<void> _onStopped(
       PedometerEvent event, Emitter<PedometerState> emit) async {
     _stream?.cancel();
+    await _pedometer.unregisterSensor();
 
     emit(PedometerStopSuccess(
       _pedometer.stepsCurrentDay,
