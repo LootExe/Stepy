@@ -41,12 +41,13 @@ dependencies:
   intl: ^0.17.0
   android_alarm_manager_plus: ^2.1.0
   pedometer:
-    path: D:/_Daten/Flutter/pedometer/
-#    git:
-#      url: https://github.com/LootExe/Pedometer.git
+    git:
+      url: https://github.com/LootExe/Pedometer.git
 
   foreground: 
-    path: D:/_Daten/Flutter/foreground/
+    git:
+      url: https://github.com/LootExe/Foreground.git
+#    path: D:/_Daten/Flutter/foreground/
     
   permission_handler: ^10.2.0
   hive: ^2.2.3

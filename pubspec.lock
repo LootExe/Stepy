@@ -266,10 +266,12 @@ packages:
   foreground:
     dependency: "direct main"
     description:
-      path: "D:/_Daten/Flutter/foreground/"
-      relative: false
-    source: path
-    version: "1.0.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: "345a63e343a18c9edf5b34b413435006734de537"
+      url: "https://github.com/LootExe/Foreground.git"
+    source: git
+    version: "1.0.1"
   frontend_server_client:
     dependency: transitive
     description:
@@ -504,10 +506,12 @@ packages:
   pedometer:
     dependency: "direct main"
     description:
-      path: "D:/_Daten/Flutter/pedometer/"
-      relative: false
-    source: path
-    version: "1.0.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: "70452a94d776b05612f796bda65909335205688e"
+      url: "https://github.com/LootExe/Pedometer.git"
+    source: git
+    version: "1.0.1"
   permission_handler:
     dependency: "direct main"
     description:
