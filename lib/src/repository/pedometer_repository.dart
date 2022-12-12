@@ -38,23 +38,30 @@ class PedometerRepository {
     return _isInitialized = true;
   }
 
+  Future<bool> registerSensor() async => await _sensor.register(
+      configuration: const SensorConfiguration(samplingRate: SamplingRate.ui));
+
+  Future<bool> unregisterSensor() async => await _sensor.unregister();
+
   /// Reads new data from the step sensor and updates step count values
-  Future<int> fetch() async => await _getStepCountStream()
-      .first
-      .onError((error, stackTrace) => sensorError);
+  Future<int> fetch() async {
+    if (!_isInitialized) {
+      return -1;
+    }
+
+    final sensorReading = await _sensor.getStepCount();
+    _updatePedometerData(sensorReading);
+    await _storage.write(_storageKey, _data);
+
+    return _data.stepsDaily;
+  }
 
   Stream<int> _getStepCountStream() {
     if (!_isInitialized) {
       return Stream<int>.error('Repository not initialized');
     }
 
-    return _sensor
-        .getStepCountStream(
-      configuration: const SensorConfiguration(
-        samplingRate: SamplingRate.ui,
-      ),
-    )
-        .asyncMap((sensorReading) async {
+    return _sensor.getStepCountStream().asyncMap((sensorReading) async {
       _updatePedometerData(sensorReading);
       await _storage.write(_storageKey, _data);
       return _data.stepsDaily;
