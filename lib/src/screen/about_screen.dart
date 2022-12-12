@@ -1,30 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
-import '../extensions.dart';
 import 'widget/settings_tile.dart';
 
-class AboutScreen extends StatefulWidget {
+class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  @override
-  State<AboutScreen> createState() => _AboutScreenState();
-}
-
-class _AboutScreenState extends State<AboutScreen> {
   static const _assetImage = AssetImage('asset/icon/launcher_icon.png');
-
-  late PackageInfo _packageInfo;
-
-  Future<void> _getPackageInfo() async {
-    _packageInfo = await PackageInfo.fromPlatform();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _getPackageInfo();
-  }
 
   // TODO: Add more text, like description of foreground service
   @override
@@ -42,8 +23,8 @@ class _AboutScreenState extends State<AboutScreen> {
               subtitle: 'Show licenses and app details',
               onTap: () => showLicensePage(
                 context: context,
-                applicationName: '${_packageInfo.appName.capitalize()} App',
-                applicationVersion: 'v${_packageInfo.version}',
+                applicationName: 'Stepy App',
+                applicationVersion: 'v1.0.2',
                 applicationIcon:
                     const Image(image: _assetImage, width: 64.0, height: 64.0),
               ),
