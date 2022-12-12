@@ -103,7 +103,7 @@ void main() {
   });
 
   group('dailyHistory tests', () {
-    test('dailyHistory should return a list -1 entry', () async {
+    test('dailyHistory should return a list of same database length', () async {
       await repository.add(StepData()..steps = 1500);
       await repository.add(StepData()..steps = 2000);
       await repository.add(StepData()..steps = 2500);
@@ -111,21 +111,7 @@ void main() {
       final list1 = database.readAll();
       final list2 = repository.dailyHistory;
 
-      final result = list2.length == list1.length - 1;
-
-      expect(result, true);
-    });
-
-    test('dailyHistory should return a reversed list', () async {
-      await repository.add(StepData()..steps = 1000);
-      await repository.add(StepData()..steps = 1500);
-      await repository.add(StepData()..steps = 2000);
-      await repository.add(StepData()..steps = 2500);
-
-      final list1 = database.readAll().toList(growable: false);
-      final list2 = repository.dailyHistory;
-
-      final result = list2[0] == list1[2];
+      final result = list2.length == list1.length;
 
       expect(result, true);
     });

@@ -174,10 +174,24 @@ class MockPedometer implements SensorProvider {
   final List<int> values;
 
   @override
-  Stream<int> getStepCountStream({
-    SensorConfiguration configuration = const SensorConfiguration(),
-  }) {
+  Stream<int> getStepCountStream() {
     return Stream<int>.periodic(const Duration(seconds: 1), (x) => values[x])
         .take(values.length);
+  }
+
+  @override
+  Future<bool> unregister() async {
+    return true;
+  }
+
+  @override
+  Future<int> getStepCount() async {
+    return 1000;
+  }
+
+  @override
+  Future<bool> register(
+      {SensorConfiguration configuration = const SensorConfiguration()}) async {
+    return true;
   }
 }
