@@ -4,8 +4,17 @@ import 'sensor_provider.dart';
 
 class PedometerSensor implements SensorProvider {
   @override
-  Stream<int> getStepCountStream({
+  Future<bool> register({
     SensorConfiguration configuration = const SensorConfiguration(),
-  }) =>
-      Pedometer.getStepCountStream(configuration: configuration);
+  }) async =>
+      await Pedometer.registerSensor(configuration: configuration);
+
+  @override
+  Future<bool> unregister() async => await Pedometer.unregisterSensor();
+
+  @override
+  Stream<int> getStepCountStream() => Pedometer.getStepCountStream();
+
+  @override
+  Future<int> getStepCount() async => await Pedometer.getStepCount();
 }

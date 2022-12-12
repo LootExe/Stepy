@@ -1,7 +1,13 @@
 import 'package:pedometer/pedometer.dart';
 
 abstract class SensorProvider {
-  Stream<int> getStepCountStream({
+  Future<bool> register({
     SensorConfiguration configuration = const SensorConfiguration(),
   });
+
+  Future<bool> unregister();
+
+  Future<int> getStepCount();
+
+  Stream<int> getStepCountStream();
 }
