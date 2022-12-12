@@ -6,14 +6,20 @@ import 'dashed_line.dart';
 import 'dot_icon.dart';
 import 'timeline_entry.dart';
 
-class Timeline extends StatelessWidget {
-  Timeline({
+class Timeline extends StatefulWidget {
+  const Timeline({
     super.key,
     required this.stepHistory,
   });
 
-  final _controller = ScrollController();
   final List<StepData> stepHistory;
+
+  @override
+  State<Timeline> createState() => _TimelineState();
+}
+
+class _TimelineState extends State<Timeline> {
+  final _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +36,11 @@ class Timeline extends StatelessWidget {
             child: _ListViewWithAllSeparators(
               controller: _controller,
               padding: const EdgeInsets.only(top: 4.0),
-              itemCount: stepHistory.length,
+              itemCount: widget.stepHistory.length,
               itemBuilder: (context, index) {
                 return TimelineEntry(
-                  date: stepHistory[index].timestamp,
-                  steps: stepHistory[index].steps,
+                  date: widget.stepHistory[index].timestamp,
+                  steps: widget.stepHistory[index].steps,
                   side: index.isEven ? ContentSide.left : ContentSide.right,
                 );
               },
