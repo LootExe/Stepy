@@ -72,9 +72,6 @@ void main() async {
     settings.readSettings(),
     pedometer.initialize(),
     history.initialize(),
-
-    // Initialize alarm manager plugin
-    BackgroundBloc.initializeAlarmManager(),
   ]);
 
   final appInitData = AppInitializeData(

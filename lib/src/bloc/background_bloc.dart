@@ -1,8 +1,8 @@
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:bloc/bloc.dart';
 import 'package:foreground/foreground.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pedometer/pedometer.dart';
+import 'package:workmanager/workmanager.dart';
 
 import '../extensions.dart';
 
@@ -27,18 +27,17 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
     on<BackgroundServiceStopped>(_onServiceStopped);
   }
 
-  static const _alarmId = 19871010;
-  static const _alarmTime = Duration(minutes: 15);
+  static const _workmanagerId = 'stepy.workmanager.task';
+  static const _workmanagerTime = Duration(minutes: 15);
 
   Future<void> _onServiceStarted(
       BackgroundEvent event, Emitter<BackgroundState> emit) async {
-    await AndroidAlarmManager.periodic(
-      _alarmTime,
-      _alarmId,
-      _onAlarm,
-      wakeup: true,
-      allowWhileIdle: true,
-      rescheduleOnReboot: true,
+    await Workmanager().initialize(_workmanagerCallback);
+
+    await Workmanager().registerPeriodicTask(
+      _workmanagerId,
+      'periodic',
+      frequency: _workmanagerTime,
     );
 
     // Start Foreground Service
@@ -66,7 +65,7 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
   Future<void> _onServiceStopped(
       BackgroundEvent event, Emitter<BackgroundState> emit) async {
     // Cancel Alarm Manager
-    await AndroidAlarmManager.cancel(_alarmId);
+    await Workmanager().cancelByUniqueName(_workmanagerId);
 
     // Stop Foreground Service
     await Foreground.stopService();
@@ -74,19 +73,24 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
     emit(const BackgroundStopSuccess(false));
   }
 
-  /// Initialize the Alarm Manager
-  static Future<bool> initializeAlarmManager() async {
-    return await AndroidAlarmManager.initialize();
-  }
-
   /// Check if the Foreground service is running
   static Future<bool> get isServiceRunning async => await Foreground.isRunning;
+}
 
-  /// Alarm Manager Callback function
-  @pragma('vm:entry-point')
-  static Future<void> _onAlarm() async {
+/// Alarm Manager Callback function
+@pragma('vm:entry-point')
+Future<void> _workmanagerCallback() async {
+  Workmanager().executeTask((task, inputData) async {
     // Initialize Hive
-    await _initializeHive();
+    await Hive.initFlutter();
+
+    if (!Hive.isAdapterRegistered(StepDataAdapter().typeId)) {
+      Hive.registerAdapter(StepDataAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(LogDataAdapter().typeId)) {
+      Hive.registerAdapter(LogDataAdapter());
+    }
 
     final logger = LoggerRepository(
       database: HiveDatabase(
@@ -99,17 +103,9 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
     // Can't use sensor if foreground service is not running
     if (await Foreground.isRunning == false) {
       logger.add(LogData()
-        ..message = 'onAlarm() : Foreground not running'
+        ..message = 'Workmanager() : Foreground not running'
         ..timestamp = DateTime.now());
-      return;
-    }
-
-    // Prevent callback from being called multiple times in short periods
-    if (await _isEnoughTimeElapsed() == false) {
-      logger.add(LogData()
-        ..message = 'onAlarm() : Called twice'
-        ..timestamp = DateTime.now());
-      return;
+      return true;
     }
 
     final pedometer = PedometerRepository(
@@ -126,7 +122,7 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
     await history.initialize();
 
     await pedometer.registerSensor();
-    final result = await pedometer.fetch();
+    await pedometer.fetch();
 
     // Update history repository
     final lastEntry = history.dailyHistory.last;
@@ -141,36 +137,15 @@ class BackgroundBloc extends Bloc<BackgroundEvent, BackgroundState> {
     }
 
     logger.add(LogData()
-      ..message = 'Fetch = $result / Steps = ${history.dailyHistory.last.steps}'
+      ..message = 'Steps = ${history.dailyHistory.last.steps}'
       ..timestamp = DateTime.now());
 
     await pedometer.unregisterSensor();
     await history.close();
     await logger.close();
-  }
 
-  static Future<bool> _isEnoughTimeElapsed() async {
-    const key = 'onAlarm';
-    final storage = PreferencesStorage<DateTime>();
-    final lastCall = await storage.read(key);
-
-    await storage.write(key, DateTime.now());
-
-    return lastCall == null ||
-        lastCall.difference(DateTime.now()).inSeconds > 10;
-  }
-
-  static Future<void> _initializeHive() async {
-    await Hive.initFlutter();
-
-    if (!Hive.isAdapterRegistered(StepDataAdapter().typeId)) {
-      Hive.registerAdapter(StepDataAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(LogDataAdapter().typeId)) {
-      Hive.registerAdapter(LogDataAdapter());
-    }
-  }
+    return true;
+  });
 }
 
 @pragma('vm:entry-point')
