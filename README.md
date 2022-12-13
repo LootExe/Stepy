@@ -6,12 +6,10 @@ A step counter app written in Flutter
 
 The app uses three main Android components.
 
-First is the hardware based step sensor to get the number of steps taken
-since device boot.
+First is the hardware based step sensor which counts the steps taken.
 
-Second is the Alarm Manager which roughly wakes up every 15 minutes
-the sensor reading function to get new steps in background and saves 
-data to the database.
+Second is a Foreground service which keeps the step sensor registered 
+in the SensorManager to hold it awake throughout the day.
 
-Third is an Android foreground service which is necessary for the Alarm Manager
-to access the step sensor while running in background
+Third is a Workmanager which fetches new steps from the sensor and 
+updates daily steps taken roughly every 15 minutes.
