@@ -16,4 +16,6 @@ updates daily steps taken roughly every 15 minutes.
 
 ## Pictures
 
-<a href="doc"><img src="https://github.com/LootExe/Stepy/blob/master/doc/Screenshot1.png" style="max-width: 200px"></a>
+<img src="doc/Screenshot1.png" width ="200"/> <img src="doc/Screenshot2.png" width="200"/>
+
+
